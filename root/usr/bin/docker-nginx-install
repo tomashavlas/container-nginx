@@ -1,0 +1,55 @@
+#!/bin/bash
+
+set -o errexit
+
+function usage() {
+    cat >&2 <<EOHELP
+
+Usage:  $0 [CONFIGURE-FLAGS]
+
+Build and install nginx from source.
+EOHELP
+
+    exit 1
+}
+
+function nginx_source_extract() {
+    local delete; delete="$( [ -d "${NGINX_SOURCE}" ] && echo 0 || echo 1 )"
+
+    docker-nginx-source extract
+    if [ 1 -eq ${delete} ]; then
+        touch "${NGINX_SOURCE}/.docker-delete-me"
+    fi
+}
+
+function nginx_source_delete() {
+    if [ -f "${NGINX_SOURCE}/.docker-delete-me" ]; then
+        docker-nginx-source delete
+    fi
+}
+
+if [ $# -eq 1 -a "--help" == "${1:-}" ]; then
+    usage
+fi
+
+nginx_source_extract
+
+if [ $# -gt 0 ]; then
+    docker-nginx-configure "$@"
+fi
+
+pushd "${NGINX_SOURCE}"
+make --jobs=$( nproc )
+make --jobs=$( nproc ) install
+make --jobs=$( nproc ) clean
+popd
+
+install --directory --group=0 --mode=0770 --owner=48 \
+    "${NGINX_CONFD_PATH}" \
+    "${NGINX_DEFAULTD_PATH}" \
+    "${NGINX_LIB_PATH}" \
+    "${NGINX_LOCK_PATH}" \
+    "${NGINX_LOG_PATH}" \
+    "${NGINX_RUN_PATH}"
+
+nginx_source_delete

@@ -6,6 +6,8 @@ EXPOSE 8080 \
 ENV NGINX_VERSION=1.12 \
     NGINX_RELEASE=1.12.2 \
     NGINX_CHECKSUM=305f379da1d5fb5aefa79e45c829852ca6983c7cd2a79328f8e084a324cf0416 \
+    NGINX_SOURCE=/usr/src/nginx \
+    NGINX_TARBALL=/usr/src/nginx-1.12.2.tar.gz \
     HOME=/srv/www
 
 LABEL name="tomashavlas/nginx" \
@@ -41,8 +43,8 @@ RUN apt-get update \
         wget " \
  && apt-get install --yes --no-install-recommends --verbose-versions ${BUILD_DEPS} \
  \
- && wget -O "/usr/src/nginx-${NGINX_RELEASE}.tar.gz" "https://nginx.org/download/nginx-1.12.2.tar.gz" \
- && echo "${NGINX_CHECKSUM} */usr/src/nginx-${NGINX_RELEASE}.tar.gz" | sha256sum --check - \
+ && wget -O "${NGINX_TARBALL}" "https://nginx.org/download/nginx-1.12.2.tar.gz" \
+ && echo "${NGINX_CHECKSUM} *${NGINX_TARBALL}" | sha256sum --check - \
  \
  && apt-get purge --yes --auto-remove ${BUILD_DEPS}
 
@@ -56,12 +58,12 @@ RUN apt-get update \
  && apt-get install --yes --no-install-recommends --verbose-versions ${BUILD_DEPS} \
  && rm --recursive /var/lib/apt/lists/* \
  \
- && mkdir -p /usr/src/nginx \
+ && mkdir -p "${NGINX_SOURCE}" \
  && tar --extract --gzip --strip-components=1 \
-        --directory=/usr/src/nginx \
-        --file=/usr/src/nginx-${NGINX_RELEASE}.tar.gz \
+        --directory="${NGINX_SOURCE}" \
+        --file="${NGINX_TARBALL}" \
  \
- && cd /usr/src/nginx \
+ && cd "${NGINX_SOURCE}" \
  && ./configure \
         --prefix=/usr/share/nginx \
         --sbin-path=/usr/sbin/nginx \
@@ -81,21 +83,21 @@ RUN apt-get update \
         --with-http_v2_module \
         --with-ipv6 \
  && make --jobs=$( nproc ) \
- && make install \
+ && make --jobs=$( nproc ) install \
  && install --directory --group=0 --mode=0770 --owner=48 \
         "${HOME}" \
         "${NGINX_CONFD_PATH}" \
         "${NGINX_DEFAULTD_PATH}" \
-        /run/nginx \
-        /var/lib/nginx \
-        /var/lock/nginx \
-        /var/log/nginx \
+        "${NGINX_LIB_PATH}" \
+        "${NGINX_LOCK_PATH}" \
+        "${NGINX_LOG_PATH}" \
+        "${NGINX_RUN_PATH}" \
  && cd / \
  \
  && apt-get purge --yes --auto-remove ${BUILD_DEPS} \
  && rm --recursive \
-        /etc/nginx/*.default \
-        /usr/src/nginx \
+        "${NGINX_SOURCE}" \
+        "${NGINX_CONF_PATH}"/*.default \
  \
  && test "$(id nginx)" = "uid=48(nginx) gid=0(root) groups=0(root)"
 

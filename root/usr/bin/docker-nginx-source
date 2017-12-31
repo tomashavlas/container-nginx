@@ -1,0 +1,46 @@
+#!/bin/bash
+
+set -o errexit
+
+function usage() {
+    cat >&2 <<EOHELP
+
+Usage:  $0 COMMAND
+
+Manage nginx source tarball lifecycle.
+
+Commands:
+  delete   delete extracted php source located into ${NGINX_SOURCE}
+  extract  extract nginx source tarball into directory ${NGINX_SOURCE}
+  prune    delete nginx source tarball and associated docker-nginx-* scripts
+EOHELP
+
+    exit 1
+}
+
+case "$1" in
+    delete)
+		rm --force --recursive "${NGINX_SOURCE}"
+		;;
+
+	extract)
+		mkdir -p "${NGINX_SOURCE}"
+		if [ ! -f "${NGINX_SOURCE}/.docker-extracted" ]; then
+			tar --extract --gzip --strip-components=1 \
+			    --directory="${NGINX_SOURCE}" \
+                --file="${NGINX_TARBALL}"
+			touch "${NGINX_SOURCE}/.docker-extracted"
+		fi
+		;;
+
+    prune)
+        rm --force "${NGINX_TARBALL}"
+        rm --force /usr/bin/docker-nginx-configure
+        rm --force /usr/bin/docker-nginx-install
+        rm --force /usr/bin/docker-nginx-source
+        ;;
+
+	*)
+		usage
+		;;
+esac

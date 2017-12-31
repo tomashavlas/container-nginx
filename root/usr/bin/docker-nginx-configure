@@ -1,0 +1,46 @@
+#!/bin/bash
+
+set -o errexit
+
+function usage() {
+    cat >&2 <<EOHELP
+
+Usage:  $0 CONFIGURE-FLAGS
+
+Configure nginx source with provided flags.
+EOHELP
+
+    exit 1
+}
+
+function nginx_source_extract() {
+    local delete; delete="$( [ -d "${NGINX_SOURCE}" ] && echo 0 || echo 1 )"
+
+    docker-nginx-source extract
+    if [ 1 -eq ${delete} ]; then
+        touch "${NGINX_SOURCE}/.docker-delete-me"
+    fi
+}
+
+if [ $# -eq 0 ] || [ $# -eq 1 -a "--help" == "${1:-}" ]; then
+    usage
+fi
+
+nginx_source_extract
+
+pushd "${NGINX_SOURCE}"
+./configure \
+    --prefix=/usr/share/nginx \
+    --sbin-path=/usr/sbin/nginx \
+    --conf-path="${NGINX_CONF_PATH}/nginx.conf" \
+    --http-log-path="${NGINX_LOG_PATH}/access.log" \
+    --error-log-path="${NGINX_LOG_PATH}/error.log" \
+    --lock-path="${NGINX_LOCK_PATH}/nginx.lock" \
+    --pid-path="${NGINX_RUN_PATH}/nginx.pid" \
+    --modules-path=/usr/lib/nginx/modules \
+    --http-client-body-temp-path="${NGINX_LIB_PATH}/body" \
+    --http-fastcgi-temp-path="${NGINX_LIB_PATH}/fastcgi" \
+    --http-proxy-temp-path="${NGINX_LIB_PATH}/proxy" \
+    --http-scgi-temp-path="${NGINX_LIB_PATH}/scgi" \
+    --http-uwsgi-temp-path="${NGINX_LIB_PATH}/uwsgi" \
+    "$@"

@@ -32,7 +32,7 @@ Test suite for nginx http and reverse proxy server container image.
 
 Environment variable:
   IMAGE_NAME  name of container image to test
-  TESTCASE  list of test cases to run (if empty all tests are run)
+  TESTCASE    list of test cases to run (if empty all tests are run)
 
 Test cases:
 $( cci_suite_caselist ${TESTSUITE_CASELIST} )
@@ -41,7 +41,7 @@ EOHELP
     exit 1
 }
 
-[ $# -eq 1 ] && [ "--help" == "${1:-}" ] && \
+[ $# -eq 1 -a "--help" == "${1:-}" ] && \
     cci_suite_usage
 [ -n "${IMAGE_NAME:-}" ] || \
     cci_suite_usage "IMAGE_NAME must be set!"
