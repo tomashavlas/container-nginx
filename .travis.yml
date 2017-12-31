@@ -1,0 +1,25 @@
+---
+language: bash
+
+sudo: required
+services:
+  - docker
+
+addons:
+  apt:
+    packages:
+      - acl
+      - golang
+      - wget
+
+before_script:
+  - sudo wget -O /usr/local/src/s2i-release.tar.gz https://github.com/openshift/source-to-image/releases/download/v1.1.8/source-to-image-v1.1.8-e3140d01-linux-amd64.tar.gz
+  - sudo tar xvf /usr/local/src/s2i-release.tar.gz -C /usr/local/bin
+  - sudo chmod -R 0755 /usr/local/bin
+
+script:
+  - make test TARGET=debian9 VERSION=1.12
+
+after_success:
+  |-
+    [ "${TRAVIS_PULL_REQUEST}" == "false" ] && [ "${TRAVIS_BRANCH}" == "master" ] && curl -H "Content-Type: application/json" --data '{"build": true}' -X POST "${DOCKERHUB_TRIGGER}"

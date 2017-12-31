@@ -47,5 +47,4 @@ EOHELP
     cci_suite_usage "IMAGE_NAME must be set!"
 
 cci_suite_initialize nginx_test
-cci_cleanup_disable
 cci_suite_execute "${TESTCASE:-${TESTSUITE_CASELIST}}"
