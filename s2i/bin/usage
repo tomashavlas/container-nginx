@@ -1,0 +1,12 @@
+#!/bin/bash
+
+cat <<EOHELP
+This is a S2I nginx base image, to use it, install S2I (https://github.com/openshift/source-to-image).
+
+Sample invocation:
+
+s2i build https://github.com/tomashavlas/container-nginx.git --context-dir=test/sample-app/ tomashavlas/nginx:${NGINX_VERSION}-debian9 nginx-sample-app
+
+The resulting image can be run via:
+docker run -p 8080:8080 nginx-sample-app
+EOHELP

@@ -1,0 +1,51 @@
+#!/bin/bash
+
+set -o errexit
+set -o nounset
+shopt -s nullglob
+
+source "${COMMON_PATH}/test/libcci.sh"
+
+readonly TESTSUITE_PATH="$( CDPATH= cd -- "$( dirname -- "$0" )" && pwd -P )"
+
+TESTSUITE_CASELIST=" \
+arbitrary_user
+data_volume
+log_to_volume
+s2i_build
+"
+
+function cci_suite_fix_permissions() {
+    local path="$1"; shift
+    local uid="${1:-48}"
+
+    find -L "${path}" -exec setfacl -m "u:${uid}:rwx" {} +
+    find -L "${path}" -exec setfacl -m "g:0:rwx" {} +
+}
+
+function cci_suite_usage() {
+    [ $# -eq 1 ] && echo "$1" >&2
+
+    cat >&2 <<EOHELP
+
+Test suite for nginx http and reverse proxy server container image.
+
+Environment variable:
+  IMAGE_NAME  name of container image to test
+  TESTCASE  list of test cases to run (if empty all tests are run)
+
+Test cases:
+$( cci_suite_caselist ${TESTSUITE_CASELIST} )
+EOHELP
+
+    exit 1
+}
+
+[ $# -eq 1 ] && [ "--help" == "${1:-}" ] && \
+    cci_suite_usage
+[ -n "${IMAGE_NAME:-}" ] || \
+    cci_suite_usage "IMAGE_NAME must be set!"
+
+cci_suite_initialize nginx_test
+cci_cleanup_disable
+cci_suite_execute "${TESTCASE:-${TESTSUITE_CASELIST}}"

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+source "${CONTAINER_ENTRYPOINT_PATH}/nginx/libnginx.sh"
+
+set -o errexit
+
+if [ -v NGINX_LOG_TO_VOLUME ] && [ "${NGINX_LOG_TO_VOLUME}" == "1" ]; then
+    nginx_config_log_to_volume
+fi
+
+exec nginx -g "daemon off;"

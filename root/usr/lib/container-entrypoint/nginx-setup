@@ -1,0 +1,17 @@
+#!/bin/bash
+
+source "${CONTAINER_ENTRYPOINT_PATH}/libce.sh"
+
+set -o errexit
+
+ce_generate_passwd 48 0
+
+fix-permissions "${HOME}"
+fix-permissions "${NGINX_CONF_PATH}"
+fix-permissions "${NGINX_CONFD_PATH}"
+fix-permissions "${NGINX_DEFAULTD_PATH}"
+fix-permissions "${NGINX_LIB_PATH}"
+fix-permissions "${NGINX_LOCK_PATH}"
+fix-permissions "${NGINX_LOG_PATH}"
+fix-permissions "${NGINX_RUN_PATH}"
+fix-permissions "${CONTAINER_PASSWD_PATH}"

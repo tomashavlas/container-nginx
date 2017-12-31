@@ -1,0 +1,14 @@
+#!/bin/bash
+
+source "${CONTAINER_ENTRYPOINT_PATH}/nginx/libnginx.sh"
+
+set -o errexit
+
+cp --force --recursive /tmp/src/. ./
+
+if [ -d ./.nginx ]; then
+    nginx_process_config_files ./.nginx
+    rm --force --recursive ./.nginx
+fi
+
+fix-permissions ./
