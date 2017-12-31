@@ -1,6 +1,8 @@
 NGINX http and reverse proxy server container image
 ===================================================
 
+[![Build Stauts](https://api.travis-ci.org/tomashavlas/container-nginx.svg?branch=master)](https://travis-ci.org/tomashavlas/container-nginx/)
+
 This repository contains Dockerfiles and scripts for NGINX container images based on Debian.
 
 
