@@ -12,7 +12,7 @@ Manage nginx source tarball lifecycle.
 Commands:
   delete   delete extracted php source located into ${NGINX_SOURCE}
   extract  extract nginx source tarball into directory ${NGINX_SOURCE}
-  prune    delete nginx source tarball and associated docker-nginx-* scripts
+  purge    delete nginx source tarball and associated docker-nginx-* scripts
 EOHELP
 
     exit 1
@@ -33,7 +33,7 @@ case "$1" in
 		fi
 		;;
 
-    prune)
+    purge)
         rm --force "${NGINX_TARBALL}"
         rm --force /usr/bin/docker-nginx-configure
         rm --force /usr/bin/docker-nginx-install

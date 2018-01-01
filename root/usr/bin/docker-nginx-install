@@ -2,6 +2,14 @@
 
 set -o errexit
 
+readonly NGINX_BUILD_DEPS=" \
+gcc
+libpcre++-dev
+libssl1.0-dev
+make
+zlib1g-dev
+"
+
 function usage() {
     cat >&2 <<EOHELP
 
@@ -11,6 +19,34 @@ Build and install nginx from source.
 EOHELP
 
     exit 1
+}
+
+function nginx_builddeps_install() {
+    apt-get update
+    apt-get install --yes --no-install-recommends --verbose-versions ${NGINX_BUILD_DEPS}
+    rm --recursive /var/lib/apt/lists/*
+}
+
+function nginx_builddeps_purge() {
+    apt-get purge --yes --auto-remove ${NGINX_BUILD_DEPS}
+}
+
+function nginx_install() {
+    pushd "${NGINX_SOURCE}"
+    make --jobs=$( nproc )
+    make --jobs=$( nproc ) install
+    make --jobs=$( nproc ) clean
+    popd
+
+    install --directory --group=0 --mode=0770 --owner=48 \
+        "${NGINX_CONFD_PATH}" \
+        "${NGINX_DEFAULTD_PATH}" \
+        "${NGINX_LIB_PATH}" \
+        "${NGINX_LOCK_PATH}" \
+        "${NGINX_LOG_PATH}" \
+        "${NGINX_RUN_PATH}"
+
+    rm "${NGINX_CONF_PATH}"/*.default
 }
 
 function nginx_source_extract() {
@@ -38,18 +74,7 @@ if [ $# -gt 0 ]; then
     docker-nginx-configure "$@"
 fi
 
-pushd "${NGINX_SOURCE}"
-make --jobs=$( nproc )
-make --jobs=$( nproc ) install
-make --jobs=$( nproc ) clean
-popd
-
-install --directory --group=0 --mode=0770 --owner=48 \
-    "${NGINX_CONFD_PATH}" \
-    "${NGINX_DEFAULTD_PATH}" \
-    "${NGINX_LIB_PATH}" \
-    "${NGINX_LOCK_PATH}" \
-    "${NGINX_LOG_PATH}" \
-    "${NGINX_RUN_PATH}"
-
+nginx_builddeps_install
+nginx_install
 nginx_source_delete
+nginx_builddeps_purge

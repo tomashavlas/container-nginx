@@ -8,7 +8,7 @@ source "${COMMON_PATH}/test/libcci.sh"
 
 readonly TESTSUITE_PATH="$( CDPATH= cd -- "$( dirname -- "$0" )" && pwd -P )"
 
-TESTSUITE_CASELIST=" \
+readonly TESTSUITE_CASELIST=" \
 arbitrary_user
 data_volume
 log_to_volume

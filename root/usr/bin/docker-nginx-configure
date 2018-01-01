@@ -2,6 +2,14 @@
 
 set -o errexit
 
+readonly NGINX_BUILD_DEPS=" \
+gcc
+libpcre++-dev
+libssl1.0-dev
+make
+zlib1g-dev
+"
+
 function usage() {
     cat >&2 <<EOHELP
 
@@ -11,6 +19,32 @@ Configure nginx source with provided flags.
 EOHELP
 
     exit 1
+}
+
+function nginx_builddeps_install() {
+    apt-get update
+    apt-get install --yes --no-install-recommends --verbose-versions ${NGINX_BUILD_DEPS}
+    rm --recursive /var/lib/apt/lists/*
+}
+
+function nginx_configure() {
+    pushd "${NGINX_SOURCE}"
+    ./configure \
+        --prefix=/usr/share/nginx \
+        --sbin-path=/usr/sbin/nginx \
+        --conf-path="${NGINX_CONF_PATH}/nginx.conf" \
+        --http-log-path="${NGINX_LOG_PATH}/access.log" \
+        --error-log-path="${NGINX_LOG_PATH}/error.log" \
+        --lock-path="${NGINX_LOCK_PATH}/nginx.lock" \
+        --pid-path="${NGINX_RUN_PATH}/nginx.pid" \
+        --modules-path=/usr/lib/nginx/modules \
+        --http-client-body-temp-path="${NGINX_LIB_PATH}/body" \
+        --http-fastcgi-temp-path="${NGINX_LIB_PATH}/fastcgi" \
+        --http-proxy-temp-path="${NGINX_LIB_PATH}/proxy" \
+        --http-scgi-temp-path="${NGINX_LIB_PATH}/scgi" \
+        --http-uwsgi-temp-path="${NGINX_LIB_PATH}/uwsgi" \
+        "$@"
+    popd
 }
 
 function nginx_source_extract() {
@@ -27,20 +61,5 @@ if [ $# -eq 0 ] || [ $# -eq 1 -a "--help" == "${1:-}" ]; then
 fi
 
 nginx_source_extract
-
-pushd "${NGINX_SOURCE}"
-./configure \
-    --prefix=/usr/share/nginx \
-    --sbin-path=/usr/sbin/nginx \
-    --conf-path="${NGINX_CONF_PATH}/nginx.conf" \
-    --http-log-path="${NGINX_LOG_PATH}/access.log" \
-    --error-log-path="${NGINX_LOG_PATH}/error.log" \
-    --lock-path="${NGINX_LOCK_PATH}/nginx.lock" \
-    --pid-path="${NGINX_RUN_PATH}/nginx.pid" \
-    --modules-path=/usr/lib/nginx/modules \
-    --http-client-body-temp-path="${NGINX_LIB_PATH}/body" \
-    --http-fastcgi-temp-path="${NGINX_LIB_PATH}/fastcgi" \
-    --http-proxy-temp-path="${NGINX_LIB_PATH}/proxy" \
-    --http-scgi-temp-path="${NGINX_LIB_PATH}/scgi" \
-    --http-uwsgi-temp-path="${NGINX_LIB_PATH}/uwsgi" \
-    "$@"
+nginx_builddeps_install
+nginx_configure "$@"
