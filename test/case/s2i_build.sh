@@ -17,6 +17,9 @@ function _test_sample_app() {
 
     download="$( cci_download "http://${ip}:8888/" )"
     fgrep --quiet '<p>This is a sample s2i application with static content.</p>' "${download}"
+
+    download="$( cci_download "http://${ip}:8080/pre-init.html" )"
+    fgrep --quiet 'pre-init' "${download}"
 }
 
 function cci_case_s2i_build() {

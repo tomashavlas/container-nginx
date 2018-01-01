@@ -3,9 +3,12 @@
 source "${CONTAINER_ENTRYPOINT_PATH}/nginx/libnginx.sh"
 
 set -o errexit
+shopt -s nullglob
 
 if [ -v NGINX_LOG_TO_VOLUME ] && [ "${NGINX_LOG_TO_VOLUME}" == "1" ]; then
     nginx_config_log_to_volume
 fi
+
+ce_source_hooks "${CONTAINER_ENTRYPOINT_PATH}/nginx/pre-init.d"
 
 exec nginx -g "daemon off;"

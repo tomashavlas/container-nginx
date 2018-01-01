@@ -8,19 +8,30 @@ function nginx_config_log_to_volume() {
 }
 
 function nginx_process_config_files() {
-    local dir="${1:-.}"
+    local directory="${1:-.}"
 
-    if [ -d ${dir}/conf.d ]; then
-        if [ "$( ls -A ${dir}/conf.d/*.conf )" ]; then
-            cp --verbose ${dir}/conf.d/*.conf "${NGINX_CONFD_PATH}"
-            rm --force --recursive ${dir}/conf.d
+    if [ -d "${directory}/conf.d" ]; then
+        if [ "$( ls -A "${directory}/conf.d"/*.conf )" ]; then
+            cp --verbose "${directory}/conf.d"/*.conf "${NGINX_CONFD_PATH}"
+            rm --force --recursive "${directory}/conf.d"
         fi
     fi
 
-    if [ -d ${dir}/default.d ]; then
-        if [ "$( ls -A ${dir}/default.d/*.conf )" ]; then
-            cp --verbose ${dir}/default.d/*.conf "${NGINX_DEFAULTD_PATH}"
-            rm --force --recursive ${dir}/default.d
+    if [ -d "${directory}/default.d" ]; then
+        if [ "$( ls -A "${directory}/default.d"/*.conf )" ]; then
+            cp --verbose "${directory}/default.d"/*.conf "${NGINX_DEFAULTD_PATH}"
+            rm --force --recursive "${directory}/default.d"
+        fi
+    fi
+}
+
+function nginx_process_hook_files() {
+    local directory="${1:-.}"
+
+    if [ -d "${directory}/pre-init.d" ]; then
+        if [ "$( ls -A "${directory}/pre-init.d"/*.sh )" ]; then
+            cp --verbose "${directory}/pre-init.d"/*.sh "${CONTAINER_ENTRYPOINT_PATH}/nginx/pre-init.d"
+            rm --force --recursive "${directory}/pre-init.d"
         fi
     fi
 }

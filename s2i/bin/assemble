@@ -8,6 +8,7 @@ cp --force --recursive /tmp/src/. ./
 
 if [ -d ./.nginx ]; then
     nginx_process_config_files ./.nginx
+    nginx_process_hook_files ./.nginx
     rm --force --recursive ./.nginx
 fi
 
