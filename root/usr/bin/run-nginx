@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source "${CONTAINER_ENTRYPOINT_PATH}/libce.sh"
 source "${CONTAINER_ENTRYPOINT_PATH}/nginx/libnginx.sh"
 
 set -o errexit

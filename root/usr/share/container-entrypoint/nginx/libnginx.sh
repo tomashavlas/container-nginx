@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source "${CONTAINER_ENTRYPOINT_PATH}/libce.sh"
+[ -n "${_LIBNGINX}" ] && return || readonly _LIBNGINX=1
 
 function nginx_config_log_to_volume() {
     sed -Ei 's!^(\s*error_log)\s+\S+;!\1  '"${NGINX_LOG_PATH}"'/error.log;!g' "${NGINX_CONF_PATH}/nginx.conf"
