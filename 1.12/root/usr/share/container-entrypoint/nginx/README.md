@@ -14,7 +14,7 @@ Description
 
 This container image provides containerized packaging of NGINX 1.12 daemon.
 This image can be used as a base image for other applications based on NGINX 1.12, 
-image can be extended using source-to-image(https://github.com/openshift/source-to-image) tool.
+image can be extended using [source-to-image](https://github.com/openshift/source-to-image) tool.
 
 
 Usage
