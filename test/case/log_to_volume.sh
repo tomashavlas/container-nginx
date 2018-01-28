@@ -2,9 +2,13 @@ function _test_log_to_volume() {
     local ip="$1"; shift
     local volume="$1"; shift
 
+    set -o errexit
+
     curl "http://${ip}:8080" > /dev/null
     test -f "${volume}/access.log"
     test -f "${volume}/error.log"
+
+    set +o errexit
 }
 
 function cci_case_log_to_volume() {

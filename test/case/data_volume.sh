@@ -6,9 +6,14 @@ function _create_test_data() {
 
 function _test_data_volume() {
     local ip="$1"; shift
-    local download; download="$( cci_download "http://${ip}:8080/index.html" )"
+    local download
 
+    set -o errexit
+
+    download="$( cci_download "http://${ip}:8080/index.html" )"
     grep --quiet -e '^success$' "${download}"
+
+    set +o errexit
 }
 
 function cci_case_data_volume() {
