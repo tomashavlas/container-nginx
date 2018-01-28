@@ -1,7 +1,7 @@
-NGINX 1.12 http and reverse proxy server container image
+NGINX 1.12 HTTP and reverse proxy server container image
 ========================================================
 
-This container image includes NGINX http and reverse proxy server version 1.12 based on Debian.
+This container image includes NGINX HTTP and reverse proxy server version 1.12 based on Debian.
 
 The container image is available on [Docker Hub](https://hub.docker.com/r/tomashavlas/nginx) as
 `tomashavlas/nginx:1.12-debian9`.
@@ -20,7 +20,7 @@ image can be extended using [source-to-image](https://github.com/openshift/sourc
 Usage
 -----
 
-This image can be used as a base image for other applications based on NGINX http and reverse proxy server.
+This image can be used as a base image for other applications based on NGINX HTTP and reverse proxy server.
 
 This will create container named `nginx` running NGINX, serving data from `/wwwdata` directory.
 Port `8080` will be exposed and mapped to the host.

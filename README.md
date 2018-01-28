@@ -1,4 +1,4 @@
-NGINX http and reverse proxy server container image
+NGINX HTTP and reverse proxy server container image
 ===================================================
 
 [![Build Stauts](https://api.travis-ci.org/tomashavlas/container-nginx.svg?branch=master)](https://travis-ci.org/tomashavlas/container-nginx/)

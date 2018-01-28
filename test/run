@@ -28,7 +28,7 @@ function cci_suite_usage() {
 
     cat >&2 <<EOHELP
 
-Test suite for nginx http and reverse proxy server container image.
+Test suite for NGINX HTTP and reverse proxy server container image.
 
 Environment variable:
   IMAGE_NAME  name of container image to test
