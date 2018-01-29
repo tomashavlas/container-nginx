@@ -64,4 +64,4 @@ Credits
 -------
 
 This project is derived from [`nginx-container`](https://github.com/sclorg/nginx-container) by
-[SoftwareCollections.org](https://www.softwarecollections.org).
+[SoftwareCollections.org](https://www.softwarecollections.org), and official [NGINX](https://hub.docker.com/_/nginx/) Docker image.
