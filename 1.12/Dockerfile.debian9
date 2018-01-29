@@ -12,7 +12,7 @@ ENV NGINX_VERSION=1.12 \
 
 LABEL name="tomashavlas/nginx" \
       version="${NGINX_VERSION}" \
-      release="1" \
+      release="${NGINX_RELEASE}" \
       maintaner="Tomáš Havlas <tomas@havlas.me>" \
       vendor="Tomáš Havlas" \
       io.openshift.s2i.scripts-url=image:///usr/lib/s2i
@@ -28,13 +28,20 @@ ENV NGINX_CONF_PATH=/etc/nginx \
 RUN useradd --home-dir /usr/share/nginx --gid 0 --shell /usr/sbin/nologin --system --uid 48 nginx \
  \
  && apt-get update \
+ && BUILD_DEPS=" \
+        gcc \
+        libpcre++-dev \
+        libssl1.0-dev \
+        make \
+        zlib1g-dev " \
  && RUNTIME_DEPS=" \
         gettext-base \
         libnss-wrapper \
         libpcre++0v5 \
         libssl1.0.2 \
         zlib1g " \
- && apt-get install --yes --no-install-recommends --verbose-versions ${RUNTIME_DEPS} \
+ && apt-get install --yes --no-install-recommends --verbose-versions ${BUILD_DEPS} ${RUNTIME_DEPS} \
+ \
  && rm --recursive /var/lib/apt/lists/*
 
 RUN apt-get update \
@@ -49,58 +56,15 @@ RUN apt-get update \
  && apt-get purge --yes --auto-remove ${BUILD_DEPS} \
  && rm --recursive /var/lib/apt/lists/*
 
-RUN apt-get update \
- && BUILD_DEPS=" \
-        gcc \
-        libpcre++-dev \
-        libssl1.0-dev \
-        make \
-        zlib1g-dev " \
- && apt-get install --yes --no-install-recommends --verbose-versions ${BUILD_DEPS} \
- \
- && mkdir -p "${NGINX_SOURCE}" \
- && tar --extract --gzip --strip-components=1 \
-        --directory="${NGINX_SOURCE}" \
-        --file="${NGINX_TARBALL}" \
- \
- && cd "${NGINX_SOURCE}" \
- && ./configure \
-        --prefix=/usr/share/nginx \
-        --sbin-path=/usr/sbin/nginx \
-        --conf-path="${NGINX_CONF_PATH}/nginx.conf" \
-        --http-log-path="${NGINX_LOG_PATH}/access.log" \
-        --error-log-path="${NGINX_LOG_PATH}/error.log" \
-        --lock-path="${NGINX_LOCK_PATH}/nginx.lock" \
-        --pid-path="${NGINX_RUN_PATH}/nginx.pid" \
-        --modules-path=/usr/lib/nginx/modules \
-        --http-client-body-temp-path="${NGINX_LIB_PATH}/body" \
-        --http-fastcgi-temp-path="${NGINX_LIB_PATH}/fastcgi" \
-        --http-proxy-temp-path="${NGINX_LIB_PATH}/proxy" \
-        --http-scgi-temp-path="${NGINX_LIB_PATH}/scgi" \
-        --http-uwsgi-temp-path="${NGINX_LIB_PATH}/uwsgi" \
+COPY [ "./root/usr/bin/docker-nginx-*", "/usr/bin/" ]
+
+RUN docker-nginx-source extract \
+ && docker-nginx-install \
         --with-http_realip_module \
         --with-http_ssl_module \
         --with-http_v2_module \
         --with-ipv6 \
- && make --jobs=$( nproc ) \
- && make --jobs=$( nproc ) install \
- && install --directory --group=0 --mode=0770 --owner=48 \
-        "${HOME}" \
-        "${NGINX_CONFD_PATH}" \
-        "${NGINX_DEFAULTD_PATH}" \
-        "${NGINX_LIB_PATH}" \
-        "${NGINX_LOCK_PATH}" \
-        "${NGINX_LOG_PATH}" \
-        "${NGINX_RUN_PATH}" \
- && cd / \
- && rm --recursive \
-         "${NGINX_SOURCE}" \
-         "${NGINX_CONF_PATH}"/*.default \
- \
- && apt-get purge --yes --auto-remove ${BUILD_DEPS} \
- && rm --recursive /var/lib/apt/lists/* \
- \
- && test "$( id nginx )" = "uid=48(nginx) gid=0(root) groups=0(root)"
+ && docker-nginx-source delete
 
 ENV CONTAINER_ENTRYPOINT_PATH=/usr/share/container-entrypoint \
     CONTAINER_PASSWD_PATH="${NGINX_CONF_PATH}/passwd" \
@@ -108,7 +72,8 @@ ENV CONTAINER_ENTRYPOINT_PATH=/usr/share/container-entrypoint \
 
 COPY [ "./s2i/bin", "${S2I_BIN_PATH}/" ]
 COPY [ "./common/root", "./root", "./${NGINX_VERSION}/root", "/" ]
-RUN /usr/lib/container-entrypoint/nginx-setup
+RUN /usr/lib/container-entrypoint/nginx-setup \
+ && test "$( id nginx )" = "uid=48(nginx) gid=0(root) groups=0(root)"
 
 VOLUME [ "${NGINX_LOG_PATH}" ]
 

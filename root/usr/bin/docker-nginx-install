@@ -2,79 +2,40 @@
 
 set -o errexit
 
-readonly NGINX_BUILD_DEPS=" \
-gcc
-libpcre++-dev
-libssl1.0-dev
-make
-zlib1g-dev
-"
-
 function usage() {
     cat >&2 <<EOHELP
 
 Usage:  $0 [CONFIGURE-FLAGS]
 
-Build and install nginx from source.
+Build and install NGINX from source.
 EOHELP
 
     exit 1
-}
-
-function nginx_builddeps_install() {
-    apt-get update
-    apt-get install --yes --no-install-recommends --verbose-versions ${NGINX_BUILD_DEPS}
-    rm --recursive /var/lib/apt/lists/*
-}
-
-function nginx_builddeps_purge() {
-    apt-get purge --yes --auto-remove ${NGINX_BUILD_DEPS}
-}
-
-function nginx_install() {
-    pushd "${NGINX_SOURCE}"
-    make --jobs=$( nproc )
-    make --jobs=$( nproc ) install
-    make --jobs=$( nproc ) clean
-    popd
-
-    install --directory --group=0 --mode=0770 --owner=48 \
-        "${NGINX_CONFD_PATH}" \
-        "${NGINX_DEFAULTD_PATH}" \
-        "${NGINX_LIB_PATH}" \
-        "${NGINX_LOCK_PATH}" \
-        "${NGINX_LOG_PATH}" \
-        "${NGINX_RUN_PATH}"
-
-    rm "${NGINX_CONF_PATH}"/*.default
-}
-
-function nginx_source_extract() {
-    local delete; delete="$( [ -d "${NGINX_SOURCE}" ] && echo 0 || echo 1 )"
-
-    docker-nginx-source extract
-    if [ 1 -eq ${delete} ]; then
-        touch "${NGINX_SOURCE}/.docker-delete-me"
-    fi
-}
-
-function nginx_source_delete() {
-    if [ -f "${NGINX_SOURCE}/.docker-delete-me" ]; then
-        docker-nginx-source delete
-    fi
 }
 
 if [ $# -eq 1 -a "--help" == "${1:-}" ]; then
     usage
 fi
 
-nginx_source_extract
-
 if [ $# -gt 0 ]; then
     docker-nginx-configure "$@"
 fi
 
-nginx_builddeps_install
-nginx_install
-nginx_source_delete
-nginx_builddeps_purge
+
+pushd "${NGINX_SOURCE}"
+
+make --jobs=$( nproc )
+make --jobs=$( nproc ) install
+make --jobs=$( nproc ) clean
+find "${NGINX_CONF_PATH}" -iname '/*.default' -delete
+
+popd
+
+install --directory --group=0 --mode=0770 --owner=48 \
+    "${HOME}" \
+    "${NGINX_CONFD_PATH}" \
+    "${NGINX_DEFAULTD_PATH}" \
+    "${NGINX_LIB_PATH}" \
+    "${NGINX_LOCK_PATH}" \
+    "${NGINX_LOG_PATH}" \
+    "${NGINX_RUN_PATH}"
