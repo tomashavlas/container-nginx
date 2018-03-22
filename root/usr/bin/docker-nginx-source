@@ -19,20 +19,20 @@ EOHELP
 
 case "$1" in
     delete)
-		rm --force --recursive "${NGINX_SOURCE}"
-		;;
+        rm --force --recursive "${NGINX_SOURCE}"
+        ;;
 
-	extract)
-		if [ ! -f "${NGINX_SOURCE}/.docker-extracted" ]; then
-		    mkdir -p "${NGINX_SOURCE}"
-			tar --extract --gzip --strip-components=1 \
-			    --directory="${NGINX_SOURCE}" \
+    extract)
+        if [ ! -f "${NGINX_SOURCE}/.docker-extracted" ]; then
+            mkdir -p "${NGINX_SOURCE}"
+            tar --extract --gzip --strip-components=1 \
+                --directory="${NGINX_SOURCE}" \
                 --file="${NGINX_TARBALL}"
-			touch "${NGINX_SOURCE}/.docker-extracted"
-		fi
-		;;
+            touch "${NGINX_SOURCE}/.docker-extracted"
+        fi
+        ;;
 
-	*)
-		usage
-		;;
+    *)
+        usage
+        ;;
 esac
