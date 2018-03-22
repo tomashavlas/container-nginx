@@ -13,15 +13,21 @@ function nginx_process_config_files() {
     if [ -d "${directory}/conf.d" ]; then
         if [ "$( ls -A "${directory}/conf.d"/*.conf )" ]; then
             cp --verbose "${directory}/conf.d"/*.conf "${NGINX_CONFD_PATH}"
-            rm --force --recursive "${directory}/conf.d"
         fi
+
+        if [ "$( ls -A "${directory}/conf.d"/*.upstream )" ]; then
+            cp --verbose "${directory}/conf.d"/*.upstream "${NGINX_CONFD_PATH}"
+        fi
+
+        rm --force --recursive "${directory}/conf.d"
     fi
 
     if [ -d "${directory}/default.d" ]; then
         if [ "$( ls -A "${directory}/default.d"/*.conf )" ]; then
             cp --verbose "${directory}/default.d"/*.conf "${NGINX_DEFAULTD_PATH}"
-            rm --force --recursive "${directory}/default.d"
         fi
+
+        rm --force --recursive "${directory}/default.d"
     fi
 }
 
