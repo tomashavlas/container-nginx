@@ -29,6 +29,14 @@ function nginx_process_config_files() {
 
         rm --force --recursive "${directory}/default.d"
     fi
+
+    if [ -d "${directory}/snippet.d" ]; then
+        if [ "$( ls -A "${directory}/snippet.d"/*.conf )" ]; then
+            cp --verbose "${directory}/snippet.d"/*.conf "${NGINX_SNIPPETD_PATH}"
+        fi
+
+        rm --force --recursive "${directory}/snippet.d"
+    fi
 }
 
 function nginx_process_hook_files() {

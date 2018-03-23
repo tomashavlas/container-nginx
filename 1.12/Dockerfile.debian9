@@ -23,7 +23,8 @@ ENV NGINX_CONF_PATH=/etc/nginx \
     NGINX_LIB_PATH=/var/lib/nginx \
     NGINX_LOCK_PATH=/var/lock/nginx \
     NGINX_LOG_PATH=/var/log/nginx \
-    NGINX_RUN_PATH=/run/nginx
+    NGINX_RUN_PATH=/run/nginx \
+    NGINX_SNIPPETD_PATH=/etc/nginx/snippet.d
 
 RUN useradd --home-dir /usr/share/nginx --gid 0 --shell /usr/sbin/nologin --system --uid 48 nginx \
  \

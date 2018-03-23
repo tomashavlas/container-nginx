@@ -61,6 +61,10 @@ Should contain additional configuration files for default server block (`*.conf`
 
 Should contain custom container initialization scripts, those will be copied into `/usr/share/container-entrypoint/nginx/pre-init.d`.
 
+**`./.nginx/snippet.d`**
+
+Should contain reusable snippets of NGINX configuration files (`*.conf`), those will be copied into `/etc/nginx/snippet.d`.
+
 
 Environment variables
 ---------------------
