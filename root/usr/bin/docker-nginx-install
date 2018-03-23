@@ -38,4 +38,5 @@ install --directory --group=0 --mode=0770 --owner=48 \
     "${NGINX_LIB_PATH}" \
     "${NGINX_LOCK_PATH}" \
     "${NGINX_LOG_PATH}" \
-    "${NGINX_RUN_PATH}"
+    "${NGINX_RUN_PATH}" \
+    "${NGINX_SNIPPETD_PATH}"
